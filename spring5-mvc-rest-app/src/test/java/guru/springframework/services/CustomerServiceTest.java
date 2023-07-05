@@ -1,10 +1,8 @@
 package guru.springframework.services;
 
-
 import guru.springframework.api.v1.mapper.CustomerMapper;
-import guru.springframework.api.v1.model.CustomerDTO;
-import guru.springframework.controllers.v1.CustomerController;
 import guru.springframework.domain.Customer;
+import guru.springframework.model.CustomerDTO;
 import guru.springframework.repositories.CustomerRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +11,6 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -22,9 +19,6 @@ import static org.mockito.Mockito.*;
 
 public class CustomerServiceTest {
 
-    private final Long ID = 1L;
-    private final String FIRST_NAME = "Joe";
-    private final String LAST_NAME = "Smith";
     @Mock
     CustomerRepository customerRepository;
 
@@ -33,29 +27,28 @@ public class CustomerServiceTest {
     CustomerService customerService;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+
         customerService = new CustomerServiceImpl(customerMapper, customerRepository);
     }
 
     @Test
-    public void testGetAllCustomers() {
+    public void getAllCustomers() throws Exception {
         //given
         Customer customer1 = new Customer();
-        customer1.setId(ID);
-        customer1.setFirstname(FIRST_NAME);
-        customer1.setLastname(LAST_NAME);
+        customer1.setId(1l);
+        customer1.setFirstname("Michale");
+        customer1.setLastname("Weston");
 
         Customer customer2 = new Customer();
-        customer2.setId(2L);
-        customer2.setFirstname("Mary");
-        customer2.setLastname("Smith");
+        customer2.setId(2l);
+        customer2.setFirstname("Sam");
+        customer2.setLastname("Axe");
 
-        List<Customer> customers = Arrays.asList(customer1, customer2);
+        when(customerRepository.findAll()).thenReturn(Arrays.asList(customer1, customer2));
 
         //when
-        when(customerRepository.findAll()).thenReturn(customers);
-
         List<CustomerDTO> customerDTOS = customerService.getAllCustomers();
 
         //then
@@ -64,25 +57,23 @@ public class CustomerServiceTest {
     }
 
     @Test
-    public void testGetCustomerById() {
+    public void getCustomerById() throws Exception {
         //given
-        Customer customer = new Customer();
-        customer.setId(ID);
-        customer.setFirstname(FIRST_NAME);
-        customer.setLastname(LAST_NAME);
+        Customer customer1 = new Customer();
+        customer1.setId(1l);
+        customer1.setFirstname("Michale");
+        customer1.setLastname("Weston");
+
+        when(customerRepository.findById(anyLong())).thenReturn(java.util.Optional.ofNullable(customer1));
 
         //when
-        when(customerRepository.findById(anyLong())).thenReturn(Optional.of(customer));
+        CustomerDTO customerDTO = customerService.getCustomerById(1L);
 
-        //then
-        CustomerDTO customerDTO = customerService.getCustomerById(ID);
-
-        assertEquals(FIRST_NAME, customerDTO.getFirstname());
-
+        assertEquals("Michale", customerDTO.getFirstname());
     }
 
     @Test
-    public void testCreateNewCustomer() throws Exception {
+    public void createNewCustomer() throws Exception {
 
         //given
         CustomerDTO customerDTO = new CustomerDTO();
@@ -100,11 +91,11 @@ public class CustomerServiceTest {
 
         //then
         assertEquals(customerDTO.getFirstname(), savedDto.getFirstname());
-        assertEquals(CustomerController.BASE_URL + "/1", savedDto.getCustomerUrl());
+        assertEquals("/api/v1/customers/1", savedDto.getCustomerUrl());
     }
 
     @Test
-    public void testSaveCustomerByDTO() {
+    public void saveCustomerByDTO() throws Exception {
 
         //given
         CustomerDTO customerDTO = new CustomerDTO();
@@ -122,15 +113,17 @@ public class CustomerServiceTest {
 
         //then
         assertEquals(customerDTO.getFirstname(), savedDto.getFirstname());
-        assertEquals(CustomerController.BASE_URL + "/1", savedDto.getCustomerUrl());
+        assertEquals("/api/v1/customers/1", savedDto.getCustomerUrl());
     }
 
     @Test
-    public void testDeleteCustomerById() {
+    public void deleteCustomerById() throws Exception {
+
         Long id = 1L;
 
         customerRepository.deleteById(id);
 
         verify(customerRepository, times(1)).deleteById(anyLong());
     }
+
 }

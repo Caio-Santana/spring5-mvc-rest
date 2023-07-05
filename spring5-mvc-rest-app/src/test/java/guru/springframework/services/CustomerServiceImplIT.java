@@ -1,9 +1,9 @@
 package guru.springframework.services;
 
 import guru.springframework.api.v1.mapper.CustomerMapper;
-import guru.springframework.api.v1.model.CustomerDTO;
 import guru.springframework.bootstrap.Bootstrap;
 import guru.springframework.domain.Customer;
+import guru.springframework.model.CustomerDTO;
 import guru.springframework.repositories.CategoryRepository;
 import guru.springframework.repositories.CustomerRepository;
 import guru.springframework.repositories.VendorRepository;
@@ -34,6 +34,7 @@ public class CustomerServiceImplIT {
 
     @Autowired
     CategoryRepository categoryRepository;
+
     @Autowired
     VendorRepository vendorRepository;
 
@@ -100,7 +101,7 @@ public class CustomerServiceImplIT {
         assertThat(originalLastName, not(equalTo(updatedCustomer.getLastname())));
     }
 
-    private Long getCustomerIdValue() {
+    private Long getCustomerIdValue(){
         List<Customer> customers = customerRepository.findAll();
 
         System.out.println("Customers Found: " + customers.size());
